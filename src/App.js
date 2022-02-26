@@ -1,12 +1,12 @@
-import './App.css';
-import Login from './pages/login';
+import './App.css'
+import Login from './pages/login'
 
 function App() {
-  return (
-    <article className="App">
-      <Login />
-    </article>
-  );
+    return (
+        <article>
+            <Login />
+        </article>
+    )
 }
 
-export default App;
+export default App
