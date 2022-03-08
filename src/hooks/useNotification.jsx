@@ -4,8 +4,8 @@ const useNotification = () => {
     const initialState = {
         isOpen: false,
         type: 'success', // error, success, warning, info
-        description: ''
-
+        description: '',
+        duration: 3000
     }
     const [notificationState, setNotificationState] = useState(initialState);
 

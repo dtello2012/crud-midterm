@@ -71,13 +71,6 @@ export const StyledLoginWrap = styled.section`
     }
 `
 
-export const StyledInputWrap = styled.article`
-    margin-bottom: 24px;
-    > div {
-        width: 100%;
-    }
-`
-
 export const StyledButtonWrap = styled.article`
     > button {
         width: 100%;
@@ -110,7 +103,7 @@ export const StyledIconWrap = styled(Paper)`
     border-radius: 50% !important;
     align-items: center;
     justify-content: center;
-    background-color: #1976d2 !important;
+    background-color: ${props => props.theme.palette.primary.main} !important;
     > svg {
         path {
             fill: #fff;

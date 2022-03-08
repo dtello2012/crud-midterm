@@ -1,21 +1,40 @@
-import { useState, useEffect, createContext, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { signOut } from 'firebase/auth'
 import './App.css'
 import Login from './pages/login'
 import Create from './pages/create'
 import Home from './pages/home'
 import { auth } from './firebase-config'
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import Notification from './components/Notification'
 import useNotification from './hooks/useNotification'
 import { NotificationContext } from './context/NotificationContext'
-// export const NotificationContext = createContext('notification')
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { ThemeProvider as StyledThemeProvider } from 'styled-components'
+import Navbar from './components/Navbar'
 
-function Root() {
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#005b8b'
+        },
+        secondary: {
+            main: '#dac828'
+        }
+    }
+})
+
+
+const Root = () => {
     const navigate = useNavigate()
     const { notificationState, setNotificationState } = useNotification()
     const [isAuth, setIsAuth] = useState(false)
-    const logout = async (e) => {
+ 
+    useEffect(() => {
+        navigate('/')
+    }, [])
+
+    const handleLogout = async (e) => {
         e.preventDefault()
         await signOut(auth)
         setIsAuth(false)
@@ -23,39 +42,31 @@ function Root() {
         navigate('/')
     }
 
-    useEffect(() => {
-        navigate('/')
-    }, [])
-
     return (
-        <article>
-            {isAuth && (
-                <nav>
-                    <Link to="/dashboard">Home</Link>
-                    <Link to="/create">Create</Link>
-                    <a href="#" onClick={logout}>
-                        Log out
-                    </a>
-                </nav>
-            )}
-            <NotificationContext.Provider
-                value={{
-                    notificationState,
-                    setNotificationState
-                }}
-            >
-                <Routes>
-                    {isAuth && (
-                        <>
-                            <Route path="/dashboard" element={<Home />} />
-                            <Route path="/create" element={<Create />} />
-                        </>
-                    )}
-                    <Route path="/" element={<Login setIsAuth={setIsAuth} />} />
-                </Routes>
-                <Notification />
-            </NotificationContext.Provider>
-        </article>
+        <ThemeProvider theme={theme}>
+            <StyledThemeProvider theme={theme}>
+                {isAuth && (
+                    <Navbar onLogout={handleLogout} />
+                )}
+                <NotificationContext.Provider
+                    value={{
+                        notificationState,
+                        setNotificationState
+                    }}
+                >
+                    <Routes>
+                        {isAuth && (
+                            <>
+                                <Route path="/dashboard" element={<Home />} />
+                                <Route path="/create" element={<Create />} />
+                            </>
+                        )}
+                        <Route path="/" element={<Login setIsAuth={setIsAuth} />} />
+                    </Routes>
+                    <Notification />
+                </NotificationContext.Provider>
+            </StyledThemeProvider>
+        </ThemeProvider>
     )
 }
 
