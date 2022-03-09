@@ -1,27 +1,45 @@
 import React, { useState } from 'react'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import { Paper } from '@mui/material'
-import { StyledInputWrap } from '../../components/utils.style'
+import { StyledInputWrap, StyledButtonWrap } from '../../components/utils.style'
 import { StyledCreateWrap } from './index.style'
 import Autocomplete from '@mui/material/Autocomplete'
+import { addDoc, collection } from 'firebase/firestore'
+import { db, auth } from './../../firebase-config'
+import {useNavigate} from 'react-router-dom'
+import {ISSUE_TYPE, ISSUE_PRIORITY, ISSUE_STATE, ISSUE_RESOLUTION} from './../../App.data'
+import {format} from 'date-fns'
 
 const Create = () => {
+    const navigate = useNavigate()
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [issueType, setIssueType] = useState('');
     const [priority, setPriority] = useState('');
-    const [bugState, setBugState] = useState('')
+    const [issueState, setIssueState] = useState('')
     const [resolution, setResolution] = useState('')
 
-    const submittedValues = {
-        title,
-        description,
-        issueType,
-        priority,
-        state: bugState,
-        resolution,
-        dateCreated: new Date()
+    const handleSubmit =  async () => {
+        if(!title || !description) return
+        console.log('auth', auth);
+        const submittedValues = {
+            title,
+            description,
+            issueType,
+            priority,
+            issueState,
+            resolution,
+            dateCreated: format(new Date(), 'yyyy-MM-dd'),
+            author: {
+                userName: auth.currentUser.email.split('@')[0],
+                id: auth.currentUser.uid
+            }
+        }
+        const issuesCollectionRef = collection(db, 'issues')
+        await addDoc(issuesCollectionRef, submittedValues)
+        navigate('/dashboard')
+        
+        console.log('%c [ submittedValues ]-30', 'font-size:13px; background:pink; color:#bf2c9f;', submittedValues)
     }
 
     return (
@@ -45,7 +63,7 @@ const Create = () => {
                     clearOnEscape
                     value={issueType}
                     onChange={(e, newValue) => setIssueType(newValue)}
-                    options={['Bug', 'Improvement', 'Story', 'Task']}
+                    options={[...ISSUE_TYPE]}
                     renderInput={(params) => <TextField {...params} label="Issue Type" />}
                 />
             </StyledInputWrap>
@@ -55,7 +73,7 @@ const Create = () => {
                     clearOnEscape
                     value={priority}
                     onChange={(e, newValue) => setPriority(newValue)}
-                    options={['Blocker','Critical', 'Major', 'Minor', 'Trivial']}
+                    options={[...ISSUE_PRIORITY]}
                     renderInput={(params) => <TextField {...params} label="Priority" />}
                 />
             </StyledInputWrap>
@@ -63,9 +81,9 @@ const Create = () => {
                 <Autocomplete
                     disablePortal
                     clearOnEscape
-                    value={bugState}
-                    onChange={(e, newValue) => setBugState(newValue)}
-                    options={['Open', 'In Progress', 'Resolved', 'Reopened', 'Duplicate', 'QA Ready', 'Backlog','Done', 'Closed']}
+                    value={issueState}
+                    onChange={(e, newValue) => setIssueState(newValue)}
+                    options={[...ISSUE_STATE]}
                     renderInput={(params) => <TextField {...params} label="Bug State" />}
                 />
             </StyledInputWrap>
@@ -75,10 +93,15 @@ const Create = () => {
                     clearOnEscape
                     value={resolution}
                     onChange={(e, newValue) => setResolution(newValue)}
-                    options={['Fixed', "Won't Fix", 'Duplicate', 'Incomplete', 'Cannot Reproduce', 'Done','By Design', "Won't Do" ]}
+                    options={[...ISSUE_RESOLUTION]}
                     renderInput={(params) => <TextField {...params} label="Resolution" />}
                 />
             </StyledInputWrap>
+            <StyledButtonWrap>
+            <Button variant="contained" onClick={handleSubmit}>
+                    Create
+            </Button>
+            </StyledButtonWrap>
         </StyledCreateWrap>
     )
 }

@@ -57,8 +57,8 @@ const Root = () => {
                     <Routes>
                         {isAuth && (
                             <>
-                                <Route path="/dashboard" element={<Home />} />
-                                <Route path="/create" element={<Create />} />
+                                <Route path="/dashboard" element={<Home isAuth={isAuth} />} />
+                                <Route path="/create-issue" element={<Create />} />
                             </>
                         )}
                         <Route path="/" element={<Login setIsAuth={setIsAuth} />} />
