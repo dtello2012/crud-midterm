@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import TableContainer from '@mui/material/TableContainer'
 
 export const StyledHome = styled.article`
     padding: 1rem;
@@ -11,48 +12,6 @@ export const StyledHome = styled.article`
     }
 `
 
-export const StyledHomeList = styled.table`
-    /* display: flex; */
-    /* padding: 0; */
-     > li {
-         display: block;
-         padding: 1rem;
-         
-         &:nth-child(1) {
-             flex: 1 1 300px;
-         }
-
-         &:nth-child(2) {
-             flex: 1 1 400px;
-         }
-         &:nth-child(3) {
-             flex: 1 1 100px;
-             justify-content: center;
-            align-items: center;
-         }
-         &:nth-child(4) {
-             flex: 1 1 100px;
-             justify-content: center;
-            align-items: center;
-         }
-         &:nth-child(5) {
-             flex: 1 1 100px;
-             justify-content: center;
-            align-items: center;
-         }
-         
-     }
-
-     &.header {
-         background: #ccc;
-         >li {
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
-            &:nth-child(3) {
-             /* flex: 1 1 50px; */
-             justify-content: center;
-         }
-         }
-     }
+export const StyledHomeList = styled(TableContainer)`
+    margin-bottom: 100px;
 `

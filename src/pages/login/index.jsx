@@ -23,7 +23,7 @@ const Login = ({ setIsAuth }) => {
     onAuthStateChanged(auth, (currentUser) => {
         if (currentUser) {
             setIsAuth(true)
-            navigate('/dashboard')
+            navigate(`/dashboard/${currentUser.uid}`)
         }
     })
 

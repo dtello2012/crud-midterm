@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import { useState } from 'react'
 
 const useNotification = () => {
     const initialState = {
@@ -7,9 +7,9 @@ const useNotification = () => {
         description: '',
         duration: 3000
     }
-    const [notificationState, setNotificationState] = useState(initialState);
+    const [notificationState, setNotificationState] = useState(initialState)
 
-    return {notificationState, setNotificationState}
+    return [notificationState, setNotificationState]
 }
 
-export default useNotification;
+export default useNotification

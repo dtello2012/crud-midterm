@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import { StyledInputWrap, StyledButtonWrap } from '../../components/utils.style'
@@ -6,22 +6,29 @@ import { StyledCreateWrap } from './index.style'
 import Autocomplete from '@mui/material/Autocomplete'
 import { addDoc, collection } from 'firebase/firestore'
 import { db, auth } from './../../firebase-config'
-import {useNavigate} from 'react-router-dom'
-import {ISSUE_TYPE, ISSUE_PRIORITY, ISSUE_STATE, ISSUE_RESOLUTION} from './../../App.data'
-import {format} from 'date-fns'
+import { useNavigate } from 'react-router-dom'
+import { ISSUE_TYPE, ISSUE_PRIORITY, ISSUE_STATE, ISSUE_RESOLUTION } from './../../App.data'
+import { format } from 'date-fns'
+import { NotificationContext } from './../../context/NotificationContext'
 
-const Create = () => {
+const Create = ({ isAuth, isEdit }) => {
     const navigate = useNavigate()
+    const { notificationState, setNotificationState } = useContext(NotificationContext)
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
-    const [issueType, setIssueType] = useState('');
-    const [priority, setPriority] = useState('');
+    const [issueType, setIssueType] = useState('')
+    const [priority, setPriority] = useState('')
     const [issueState, setIssueState] = useState('')
     const [resolution, setResolution] = useState('')
 
-    const handleSubmit =  async () => {
-        if(!title || !description) return
-        console.log('auth', auth);
+    useEffect(() => {
+        if (!isAuth) {
+            navigate('/')
+        }
+    }, [])
+
+    const handleSubmit = async () => {
+        if (!title || !description) return
         const submittedValues = {
             title,
             description,
@@ -29,7 +36,7 @@ const Create = () => {
             priority,
             issueState,
             resolution,
-            dateCreated: format(new Date(), 'yyyy-MM-dd'),
+            dateCreated: format(new Date(), 'yyyy-MM-dd hh:mm'),
             author: {
                 userName: auth.currentUser.email.split('@')[0],
                 id: auth.currentUser.uid
@@ -37,14 +44,22 @@ const Create = () => {
         }
         const issuesCollectionRef = collection(db, 'issues')
         await addDoc(issuesCollectionRef, submittedValues)
-        navigate('/dashboard')
-        
-        console.log('%c [ submittedValues ]-30', 'font-size:13px; background:pink; color:#bf2c9f;', submittedValues)
+        navigate(`/dashboard/${auth?.currentUser?.uid}`)
+        showToast('success', `${issueType} created`)
+    }
+
+    const showToast = (type, description) => {
+        setNotificationState({
+            ...notificationState,
+            isOpen: true,
+            type,
+            description
+        })
     }
 
     return (
         <StyledCreateWrap>
-            <h1>Create an issue</h1>
+            <h1>{isEdit ? 'Edit issue' : 'Create an issue'}</h1>
             <StyledInputWrap>
                 <TextField label="Title" variant="outlined" value={title} onChange={(e) => setTitle(e.target.value)} />
             </StyledInputWrap>
@@ -98,9 +113,9 @@ const Create = () => {
                 />
             </StyledInputWrap>
             <StyledButtonWrap>
-            <Button variant="contained" onClick={handleSubmit}>
+                <Button variant="contained" onClick={handleSubmit}>
                     Create
-            </Button>
+                </Button>
             </StyledButtonWrap>
         </StyledCreateWrap>
     )

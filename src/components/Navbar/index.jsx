@@ -7,6 +7,7 @@ import Container from '@mui/material/Container'
 import Button from '@mui/material/Button'
 import { Link } from 'react-router-dom'
 import { StyledNavbar } from './index.style'
+import { auth } from './../../firebase-config'
 
 const logo = require('./../../images/main_logo.png')
 
@@ -15,14 +16,18 @@ const Navbar = ({ onLogout }) => {
         <StyledNavbar position="sticky">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <img style={{ width: 85 }}
-                    src={logo}
-                    alt={'main logo'} />
-
+                    <Link to={`/dashboard/${auth?.currentUser?.uid}`}>
+                        <img style={{ width: 85 }} src={logo} alt="" />
+                    </Link>
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', justifyContent: 'flex-end' } }}>
                         <Button key={'page-1'}>
-                            <Link to="/dashboard">
-                                <Typography textAlign="center">{'Home'}</Typography>
+                            <Link to={`/dashboard/${auth?.currentUser?.uid}`}>
+                                <Typography textAlign="center">{'My Issues'}</Typography>
+                            </Link>
+                        </Button>
+                        <Button key={'page-1.a'}>
+                            <Link to={`/dashboard/team-issues`}>
+                                <Typography textAlign="center">{'Team Issues'}</Typography>
                             </Link>
                         </Button>
                         <Button key={'page-2'}>

@@ -9,24 +9,21 @@ import Popper from '@mui/material/Popper'
 import MenuItem from '@mui/material/MenuItem'
 import MenuList from '@mui/material/MenuList'
 
-const DropdownButton = ({options = [], selected}) => {
+const DropdownButton = ({ options = [], selected, onUpdateSelection }) => {
     const [open, setOpen] = useState(false)
     const anchorRef = useRef(null)
     const [selectedIndex, setSelectedIndex] = useState(0)
 
-    useEffect(() =>{
+    useEffect(() => {
         if (options) {
             const index = options?.findIndex((item) => item === selected)
             setSelectedIndex(index)
         }
     }, [options])
 
-    const handleClick = () => {
-        console.info(`You clicked ${options[selectedIndex]}`)
-    }
-
     const handleMenuItemClick = (event, index) => {
         setSelectedIndex(index)
+        onUpdateSelection(options[index])
         setOpen(false)
     }
 
@@ -40,7 +37,6 @@ const DropdownButton = ({options = [], selected}) => {
         }
         setOpen(false)
     }
-
 
     return (
         <>
@@ -57,12 +53,19 @@ const DropdownButton = ({options = [], selected}) => {
                     <ArrowDropDownIcon />
                 </Button>
             </ButtonGroup>
-            <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal style={{zIndex: 1}}>
+            <Popper
+                open={open}
+                anchorEl={anchorRef.current}
+                role={undefined}
+                transition
+                disablePortal
+                style={{ zIndex: 4 }}
+            >
                 {({ TransitionProps, placement }) => (
                     <Grow
                         {...TransitionProps}
                         style={{
-                            transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
+                            transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom'
                         }}
                     >
                         <Paper>
