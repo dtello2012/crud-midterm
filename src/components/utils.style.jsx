@@ -14,5 +14,6 @@ export const StyledButtonWrap = styled.article`
     > button {
         width: 100%;
         padding: 16px 10px;
+        margin-bottom: 16px;
     }
 `

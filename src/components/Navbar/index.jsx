@@ -14,7 +14,7 @@ const logo = require('./../../images/main_logo.png')
 const Navbar = ({ onLogout }) => {
     return (
         <StyledNavbar position="sticky">
-            <Container maxWidth="xl">
+            <Container style={{ maxWidth: 1740 }}>
                 <Toolbar disableGutters>
                     <Link to={`/dashboard/${auth?.currentUser?.uid}`}>
                         <img style={{ width: 85 }} src={logo} alt="" />
@@ -22,14 +22,14 @@ const Navbar = ({ onLogout }) => {
                     <Box sx={{ flexGrow: 1, display: { xs: 'flex', justifyContent: 'flex-end' } }}>
                         <Button key={'page-1'}>
                             <Link to={`/dashboard/${auth?.currentUser?.uid}`}>
-                                <Typography textAlign="center">{'My Issues'}</Typography>
+                                <Typography textAlign="center">{'Issues'}</Typography>
                             </Link>
                         </Button>
-                        <Button key={'page-1.a'}>
+                        {/* <Button key={'page-1.a'}>
                             <Link to={`/dashboard/team-issues`}>
                                 <Typography textAlign="center">{'Team Issues'}</Typography>
                             </Link>
-                        </Button>
+                        </Button> */}
                         <Button key={'page-2'}>
                             <Link to="/create-issue">
                                 <Typography textAlign="center">{'Create'}</Typography>

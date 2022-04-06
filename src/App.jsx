@@ -66,6 +66,14 @@ const Root = () => {
                             <Route path="/create-issue" element={<Create isAuth={isAuth} />} />
                             <Route path="/" element={<Login setIsAuth={setIsAuth} />} />
                             <Route render={() => <Navigate replace to="/" />} />
+                            <Route
+                                path="*"
+                                element={
+                                    <main style={{ padding: '1rem' }}>
+                                        <p>There's nothing here!</p>
+                                    </main>
+                                }
+                            />
                         </Routes>
                         <Notification />
                     </IssuesCollectionContext.Provider>

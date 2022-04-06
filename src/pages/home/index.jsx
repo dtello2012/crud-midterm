@@ -1,13 +1,12 @@
-import React, { useState, useEffect, Fragment, useContext } from 'react'
-import { getDocs, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore'
+import React, { useEffect, Fragment, useContext } from 'react'
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore'
 import { db, auth } from './../../firebase-config'
 import { StyledHome, StyledHomeList } from './index.style'
-
+import { format } from 'date-fns'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import MenuItem from '@mui/material/MenuItem'
@@ -18,6 +17,7 @@ import OptionsDropdown from './../../components/OptionsDropdown'
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { IssuesCollectionContext } from './../../context/IssuesCollectionContext'
+import { NotificationContext } from './../../context/NotificationContext'
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -36,6 +36,7 @@ const Home = ({ isAuth }) => {
     const navigate = useNavigate()
     const params = useParams()
     const { issuesList, getListOfIssues } = useContext(IssuesCollectionContext) || []
+    const { notificationState, setNotificationState } = useContext(NotificationContext)
     const ISSUES_LIST = params?.userId
         ? issuesList && issuesList?.filter((issue) => issue?.author.id === auth?.currentUser?.uid)
         : issuesList
@@ -45,7 +46,9 @@ const Home = ({ isAuth }) => {
             navigate('/')
             return
         }
-        getListOfIssues()
+        if (!issuesList || issuesList?.length === 0) {
+            getListOfIssues()
+        }
     }, [])
 
     const deleteIssue = async (id) => {
@@ -59,8 +62,17 @@ const Home = ({ isAuth }) => {
     }
 
     const updateIssue = async (id, update) => {
+        const _update = { ...update, updatedDate: format(new Date(), 'yyyy-MM-dd hh:mm') }
         const listDoc = doc(db, 'issues', id)
-        await updateDoc(listDoc, update)
+        await updateDoc(listDoc, _update)
+        const updatedKey = Object.entries(_update).map(([key, value]) => `value updated to: ${value}`)
+
+        setNotificationState({
+            ...notificationState,
+            isOpen: true,
+            type: 'success',
+            description: `${updatedKey}`
+        })
         getListOfIssues()
     }
 
@@ -72,48 +84,43 @@ const Home = ({ isAuth }) => {
             },
             title: {
                 display: true,
-                text: 'Chart.js Line Chart'
+                text: 'Track issues state'
             }
         }
     }
-    const labels = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
-    ]
+    const openIssues = issuesList?.filter(
+        (item) => item.issueState === 'Open' && item?.author.id === auth?.currentUser?.uid
+    )
+    const resolvedIssues = issuesList?.filter(
+        (item) => item.issueState === 'Resolved' && item?.author.id === auth?.currentUser?.uid
+    )
+    const closedIssues = issuesList?.filter(
+        (item) => item.issueState === 'Closed' && item?.author.id === auth?.currentUser?.uid
+    )
+    const doneIssues = issuesList?.filter(
+        (item) => item.resolution === 'Done' && item?.author.id === auth?.currentUser?.uid
+    )
 
     const data = {
-        labels,
+        labels: ['Open', 'Resolved', 'Closed', 'Done'],
         datasets: [
             {
-                label: 'Dataset 1',
-                data: [20, 30, 90, 0, 70, 80],
+                label: 'Issue state',
+                data: [openIssues?.length, resolvedIssues?.length, closedIssues?.length, doneIssues?.length],
                 borderColor: 'rgb(0, 255, 0)',
                 backgroundColor: 'rgba(0, 94, 31, 0.897)'
-            },
-            {
-                label: 'Dataset 2',
-                data: [10, 0, 50, 0, 70, 0],
-                borderColor: 'rgb(53, 162, 235)',
-                backgroundColor: 'rgba(53, 162, 235, 0.5)'
             }
         ]
     }
 
     return (
         <StyledHome>
-            <article style={{ maxWidth: 500 }}>
-                <Line options={options} data={data} />
-            </article>
+            <section style={{ display: 'flex' }}>
+                <article style={{ width: '30%' }}>
+                    <Line options={options} data={data} />
+                </article>
+            </section>
+
             <h1>{params?.userId ? 'My Issues' : 'Team Issues'}</h1>
             <StyledHomeList component={Paper}>
                 <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table" size="small">
@@ -129,80 +136,78 @@ const Home = ({ isAuth }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {ISSUES_LIST?.sort((a, b) => a.dateCreated < b.dateCreated)
-                            ?.filter((item) => item.issueState !== 'Backlog')
-                            ?.map((issue) => {
-                                const { title, description, priority, issueState, issueType, resolution, id } = issue
-                                return (
-                                    <Fragment key={id}>
-                                        <TableRow key={id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                            <TableCell component="th" scope="row" style={{ fontWeight: 'bold' }}>
-                                                {title}
-                                            </TableCell>
-                                            <TableCell align="left">{description}</TableCell>
-                                            <TableCell align="right">
-                                                <DropdownButton
-                                                    options={[...ISSUE_PRIORITY]}
-                                                    selected={priority}
-                                                    onUpdateSelection={(selectedOption) =>
-                                                        updateIssue(id, { priority: selectedOption })
-                                                    }
-                                                />
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <DropdownButton
-                                                    options={[...ISSUE_STATE]}
-                                                    selected={issueState}
-                                                    onUpdateSelection={(selectedOption) =>
-                                                        updateIssue(id, { issueState: selectedOption })
-                                                    }
-                                                />
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <DropdownButton
-                                                    options={[...ISSUE_TYPE]}
-                                                    selected={issueType}
-                                                    onUpdateSelection={(selectedOption) =>
-                                                        updateIssue(id, { issueType: selectedOption })
-                                                    }
-                                                />
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <DropdownButton
-                                                    options={[...ISSUE_RESOLUTION]}
-                                                    selected={resolution}
-                                                    onUpdateSelection={(selectedOption) =>
-                                                        updateIssue(id, { resolution: selectedOption })
-                                                    }
-                                                />
-                                            </TableCell>
+                        {ISSUES_LIST?.filter((item) => item.issueState !== 'Backlog')?.map((issue) => {
+                            const { title, description, priority, issueState, issueType, resolution, id } = issue
+                            return (
+                                <Fragment key={id}>
+                                    <TableRow key={id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                                        <TableCell component="th" scope="row" style={{ fontWeight: 'bold' }}>
+                                            {title}
+                                        </TableCell>
+                                        <TableCell align="left">{description}</TableCell>
+                                        <TableCell align="right">
+                                            <DropdownButton
+                                                options={[...ISSUE_PRIORITY]}
+                                                selected={priority}
+                                                onUpdateSelection={(selectedOption) =>
+                                                    updateIssue(id, { priority: selectedOption })
+                                                }
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <DropdownButton
+                                                options={[...ISSUE_STATE]}
+                                                selected={issueState}
+                                                onUpdateSelection={(selectedOption) =>
+                                                    updateIssue(id, { issueState: selectedOption })
+                                                }
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <DropdownButton
+                                                options={[...ISSUE_TYPE]}
+                                                selected={issueType}
+                                                onUpdateSelection={(selectedOption) =>
+                                                    updateIssue(id, { issueType: selectedOption })
+                                                }
+                                            />
+                                        </TableCell>
+                                        <TableCell align="right">
+                                            <DropdownButton
+                                                options={[...ISSUE_RESOLUTION]}
+                                                selected={resolution}
+                                                onUpdateSelection={(selectedOption) =>
+                                                    updateIssue(id, { resolution: selectedOption })
+                                                }
+                                            />
+                                        </TableCell>
 
-                                            {
-                                                <TableCell align="right">
-                                                    {isAuth && auth.currentUser.uid === issue.author.id ? (
-                                                        <OptionsDropdown>
-                                                            <MenuItem
-                                                                onClick={() => deleteIssue(id)}
-                                                                style={{ justifyContent: 'space-between' }}
-                                                            >
-                                                                Delete <DeleteForeverIcon />{' '}
-                                                            </MenuItem>
-                                                            <MenuItem
-                                                                onClick={() => editIssue(id)}
-                                                                style={{ justifyContent: 'space-between' }}
-                                                            >
-                                                                Edit <EditIcon />{' '}
-                                                            </MenuItem>
-                                                        </OptionsDropdown>
-                                                    ) : (
-                                                        '-'
-                                                    )}
-                                                </TableCell>
-                                            }
-                                        </TableRow>
-                                    </Fragment>
-                                )
-                            })}
+                                        {
+                                            <TableCell align="right">
+                                                {isAuth && auth.currentUser.uid === issue.author.id ? (
+                                                    <OptionsDropdown>
+                                                        <MenuItem
+                                                            onClick={() => deleteIssue(id)}
+                                                            style={{ justifyContent: 'space-between' }}
+                                                        >
+                                                            Delete <DeleteForeverIcon />{' '}
+                                                        </MenuItem>
+                                                        <MenuItem
+                                                            onClick={() => editIssue(id)}
+                                                            style={{ justifyContent: 'space-between' }}
+                                                        >
+                                                            Edit <EditIcon />{' '}
+                                                        </MenuItem>
+                                                    </OptionsDropdown>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </TableCell>
+                                        }
+                                    </TableRow>
+                                </Fragment>
+                            )
+                        })}
                     </TableBody>
                 </Table>
             </StyledHomeList>

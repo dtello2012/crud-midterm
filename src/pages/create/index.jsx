@@ -1,25 +1,30 @@
 import React, { useState, useContext, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
-import { StyledInputWrap, StyledButtonWrap } from '../../components/utils.style'
+import { StyledInputWrap, StyledButtonWrap } from './../../components/utils.style'
 import { StyledCreateWrap } from './index.style'
 import Autocomplete from '@mui/material/Autocomplete'
 import { addDoc, collection } from 'firebase/firestore'
 import { db, auth } from './../../firebase-config'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ISSUE_TYPE, ISSUE_PRIORITY, ISSUE_STATE, ISSUE_RESOLUTION } from './../../App.data'
 import { format } from 'date-fns'
 import { NotificationContext } from './../../context/NotificationContext'
+import { IssuesCollectionContext } from './../../context/IssuesCollectionContext'
+import { doc, updateDoc } from 'firebase/firestore'
 
 const Create = ({ isAuth, isEdit }) => {
     const navigate = useNavigate()
+    const params = useParams()
+    const { issuesList, getListOfIssues } = useContext(IssuesCollectionContext) || []
+    const editIssue = issuesList?.find((issue) => issue.id === params?.issueId)
     const { notificationState, setNotificationState } = useContext(NotificationContext)
-    const [title, setTitle] = useState('')
-    const [description, setDescription] = useState('')
-    const [issueType, setIssueType] = useState('')
-    const [priority, setPriority] = useState('')
-    const [issueState, setIssueState] = useState('')
-    const [resolution, setResolution] = useState('')
+    const [title, setTitle] = useState(isEdit ? editIssue?.title : '')
+    const [description, setDescription] = useState(isEdit ? editIssue?.description : '')
+    const [issueType, setIssueType] = useState(isEdit ? editIssue?.issueType : '')
+    const [priority, setPriority] = useState(isEdit ? editIssue?.priority : '')
+    const [issueState, setIssueState] = useState(isEdit ? editIssue?.issueState : '')
+    const [resolution, setResolution] = useState(isEdit ? editIssue?.resolution : '')
 
     useEffect(() => {
         if (!isAuth) {
@@ -37,6 +42,7 @@ const Create = ({ isAuth, isEdit }) => {
             issueState,
             resolution,
             dateCreated: format(new Date(), 'yyyy-MM-dd hh:mm'),
+            updatedDate: null,
             author: {
                 userName: auth.currentUser.email.split('@')[0],
                 id: auth.currentUser.uid
@@ -44,8 +50,27 @@ const Create = ({ isAuth, isEdit }) => {
         }
         const issuesCollectionRef = collection(db, 'issues')
         await addDoc(issuesCollectionRef, submittedValues)
+        await getListOfIssues()
         navigate(`/dashboard/${auth?.currentUser?.uid}`)
         showToast('success', `${issueType} created`)
+    }
+    const updateIssue = async (id) => {
+        const listDoc = doc(db, 'issues', id)
+        const submittedValues = {
+            title,
+            description,
+            issueType,
+            priority,
+            issueState,
+            resolution,
+            dateCreated: format(new Date(), 'yyyy-MM-dd hh:mm'),
+            updatedDate: format(new Date(), 'yyyy-MM-dd hh:mm')
+        }
+        await updateDoc(listDoc, submittedValues)
+
+        showToast('success', `updated issue`)
+        await getListOfIssues()
+        navigate(`/dashboard/${auth?.currentUser?.uid}`)
     }
 
     const showToast = (type, description) => {
@@ -113,9 +138,14 @@ const Create = ({ isAuth, isEdit }) => {
                 />
             </StyledInputWrap>
             <StyledButtonWrap>
-                <Button variant="contained" onClick={handleSubmit}>
-                    Create
+                <Button variant="contained" onClick={!isEdit ? handleSubmit : () => updateIssue(params?.issueId)}>
+                    {isEdit ? 'Edit' : 'Create'}
                 </Button>
+                {isEdit && (
+                    <Button variant="outlined" onClick={() => navigate(`/dashboard/${auth?.currentUser?.uid}`)}>
+                        {'cancel'}
+                    </Button>
+                )}
             </StyledButtonWrap>
         </StyledCreateWrap>
     )
