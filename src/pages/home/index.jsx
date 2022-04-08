@@ -65,7 +65,7 @@ const Home = ({ isAuth }) => {
         const _update = { ...update, updatedDate: format(new Date(), 'yyyy-MM-dd hh:mm') }
         const listDoc = doc(db, 'issues', id)
         await updateDoc(listDoc, _update)
-        const updatedKey = Object.entries(_update).map(([key, value]) => `value updated to: ${value}`)
+        const updatedKey = Object.entries(update).map(([key, value]) => `value updated to: ${value}`)
 
         setNotificationState({
             ...notificationState,
@@ -100,13 +100,22 @@ const Home = ({ isAuth }) => {
     const doneIssues = issuesList?.filter(
         (item) => item.resolution === 'Done' && item?.author.id === auth?.currentUser?.uid
     )
+    const fixedIssues = issuesList?.filter(
+        (item) => item.resolution === 'Fixed' && item?.author.id === auth?.currentUser?.uid
+    )
 
     const data = {
-        labels: ['Open', 'Resolved', 'Closed', 'Done'],
+        labels: ['Open', 'Resolved', 'Closed', 'Done', 'Fixed'],
         datasets: [
             {
                 label: 'Issue state',
-                data: [openIssues?.length, resolvedIssues?.length, closedIssues?.length, doneIssues?.length],
+                data: [
+                    openIssues?.length,
+                    resolvedIssues?.length,
+                    closedIssues?.length,
+                    doneIssues?.length,
+                    fixedIssues?.length
+                ],
                 borderColor: 'rgb(0, 255, 0)',
                 backgroundColor: 'rgba(0, 94, 31, 0.897)'
             }

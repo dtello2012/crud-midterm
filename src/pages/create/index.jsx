@@ -55,6 +55,7 @@ const Create = ({ isAuth, isEdit }) => {
         showToast('success', `${issueType} created`)
     }
     const updateIssue = async (id) => {
+        if (!title || !description) return
         const listDoc = doc(db, 'issues', id)
         const submittedValues = {
             title,
