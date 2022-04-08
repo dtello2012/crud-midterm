@@ -31,6 +31,18 @@ import {
 import { Line } from 'react-chartjs-2'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+const OPTIONS = {
+    responsive: true,
+    plugins: {
+        legend: {
+            position: 'top'
+        },
+        title: {
+            display: true,
+            text: 'Track issues state'
+        }
+    }
+}
 
 const Home = ({ isAuth }) => {
     const navigate = useNavigate()
@@ -50,6 +62,39 @@ const Home = ({ isAuth }) => {
             getListOfIssues()
         }
     }, [])
+    const openIssues = issuesList?.filter(
+        (item) => item.issueState === 'Open' && item?.author.id === auth?.currentUser?.uid
+    )
+    const resolvedIssues = issuesList?.filter(
+        (item) => item.issueState === 'Resolved' && item?.author.id === auth?.currentUser?.uid
+    )
+    const closedIssues = issuesList?.filter(
+        (item) => item.issueState === 'Closed' && item?.author.id === auth?.currentUser?.uid
+    )
+    const doneIssues = issuesList?.filter(
+        (item) => item.resolution === 'Done' && item?.author.id === auth?.currentUser?.uid
+    )
+    const fixedIssues = issuesList?.filter(
+        (item) => item.resolution === 'Fixed' && item?.author.id === auth?.currentUser?.uid
+    )
+
+    const getData = () => ({
+        labels: ['Open', 'Resolved', 'Closed', 'Done', 'Fixed'],
+        datasets: [
+            {
+                label: 'Issue state',
+                data: [
+                    openIssues?.length,
+                    resolvedIssues?.length,
+                    closedIssues?.length,
+                    doneIssues?.length,
+                    fixedIssues?.length
+                ],
+                borderColor: 'rgb(0, 255, 0)',
+                backgroundColor: 'rgba(0, 94, 31, 0.897)'
+            }
+        ]
+    })
 
     const deleteIssue = async (id) => {
         const listDoc = doc(db, 'issues', id)
@@ -76,59 +121,22 @@ const Home = ({ isAuth }) => {
         getListOfIssues()
     }
 
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top'
-            },
-            title: {
-                display: true,
-                text: 'Track issues state'
-            }
-        }
-    }
-    const openIssues = issuesList?.filter(
-        (item) => item.issueState === 'Open' && item?.author.id === auth?.currentUser?.uid
-    )
-    const resolvedIssues = issuesList?.filter(
-        (item) => item.issueState === 'Resolved' && item?.author.id === auth?.currentUser?.uid
-    )
-    const closedIssues = issuesList?.filter(
-        (item) => item.issueState === 'Closed' && item?.author.id === auth?.currentUser?.uid
-    )
-    const doneIssues = issuesList?.filter(
-        (item) => item.resolution === 'Done' && item?.author.id === auth?.currentUser?.uid
-    )
-    const fixedIssues = issuesList?.filter(
-        (item) => item.resolution === 'Fixed' && item?.author.id === auth?.currentUser?.uid
-    )
-
-    const data = {
-        labels: ['Open', 'Resolved', 'Closed', 'Done', 'Fixed'],
-        datasets: [
-            {
-                label: 'Issue state',
-                data: [
-                    openIssues?.length,
-                    resolvedIssues?.length,
-                    closedIssues?.length,
-                    doneIssues?.length,
-                    fixedIssues?.length
-                ],
-                borderColor: 'rgb(0, 255, 0)',
-                backgroundColor: 'rgba(0, 94, 31, 0.897)'
-            }
-        ]
-    }
+    const SHOW_GRAPH =
+        openIssues?.length > 0 ||
+        resolvedIssues?.length > 0 ||
+        closedIssues?.length > 0 ||
+        doneIssues?.length > 0 ||
+        fixedIssues?.length > 0
 
     return (
         <StyledHome>
-            <section style={{ display: 'flex' }}>
-                <article style={{ width: '30%' }}>
-                    <Line options={options} data={data} />
-                </article>
-            </section>
+            {SHOW_GRAPH && (
+                <section style={{ display: 'flex' }}>
+                    <article style={{ width: '30%' }}>
+                        <Line options={OPTIONS} data={getData()} />
+                    </article>
+                </section>
+            )}
 
             <h1>{params?.userId ? 'My Issues' : 'Team Issues'}</h1>
             <StyledHomeList component={Paper}>
