@@ -13,7 +13,7 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { StyledHomeList } from './index.style'
 import DropdownButton from './../DropdownButton'
 import { ISSUE_TYPE, ISSUE_PRIORITY, ISSUE_STATE, ISSUE_RESOLUTION } from './../../App.data'
-import { db, auth } from './../../firebase-config'
+import { auth } from './../../firebase-config'
 
 const IssuesTable = ({ headings, issuesList, title, onUpdateIssue, onDeleteIssue, onEditIssue, isAuth }) => {
     return (
@@ -23,8 +23,10 @@ const IssuesTable = ({ headings, issuesList, title, onUpdateIssue, onDeleteIssue
                 <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table" size="small">
                     <TableHead>
                         <TableRow>
-                            {headings.map((heading) => (
-                                <TableCell align="left">{heading}</TableCell>
+                            {headings.map((heading, idx) => (
+                                <TableCell key={`heading-key-${idx}`} align="left">
+                                    {heading}
+                                </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
@@ -34,10 +36,16 @@ const IssuesTable = ({ headings, issuesList, title, onUpdateIssue, onDeleteIssue
                             return (
                                 <Fragment key={id}>
                                     <TableRow key={id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                                        <TableCell component="th" scope="row" style={{ fontWeight: 'bold' }}>
+                                        <TableCell
+                                            component="th"
+                                            scope="row"
+                                            style={{ fontWeight: 'bold', minWidth: 211 }}
+                                        >
                                             {title}
                                         </TableCell>
-                                        <TableCell align="left">{description}</TableCell>
+                                        <TableCell align="left" style={{ minWidth: 578 }}>
+                                            {description}
+                                        </TableCell>
                                         <TableCell align="right">
                                             <DropdownButton
                                                 options={[...ISSUE_PRIORITY]}
