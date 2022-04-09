@@ -19,7 +19,7 @@ const DropdownButton = ({ options = [], selected, onUpdateSelection }) => {
             const index = options?.findIndex((item) => item === selected)
             setSelectedIndex(index)
         }
-    }, [options])
+    }, [options, selected])
 
     const handleMenuItemClick = (event, index) => {
         setSelectedIndex(index)
