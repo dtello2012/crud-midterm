@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import Paper from '@mui/material/Paper';
+import Paper from '@mui/material/Paper'
 import bg from './../../images/balboa-park.jpg'
 
 export const StyledLoginWrap = styled.section`
@@ -8,9 +8,7 @@ export const StyledLoginWrap = styled.section`
     padding: 0 16px;
     display: flex;
 
-    
     > article {
-        
         width: 100%;
         margin: 0 auto;
         display: inline-flex;
@@ -21,7 +19,7 @@ export const StyledLoginWrap = styled.section`
         }
         > h1 {
             font-size: 32px;
-            margin: 0 0 16px;
+            margin: 0px;
         }
     }
 
@@ -44,9 +42,8 @@ export const StyledLoginWrap = styled.section`
                     width: 100%;
                     height: 100%;
                     background: rgba(0, 0, 0, 0.4);
-                    background: radial-gradient(circle, rgba(0,0,0,0.01) 0%, rgba(0,0,0,0.7) 100%);
+                    background: radial-gradient(circle, rgba(0, 0, 0, 0.01) 0%, rgba(0, 0, 0, 0.7) 100%);
                 }
-    
             }
             &:nth-child(2) {
                 padding: 0 32px;
@@ -103,10 +100,19 @@ export const StyledIconWrap = styled(Paper)`
     border-radius: 50% !important;
     align-items: center;
     justify-content: center;
-    background-color: ${props => props.theme.palette.primary.main} !important;
+    background-color: ${(props) => props.theme.palette.primary.main} !important;
     > svg {
         path {
             fill: #fff;
         }
+    }
+`
+
+export const StyledLoginLogoWrap = styled.article`
+    display: flex;
+    align-items: center;
+    > p {
+        font-size: 20px;
+        margin-bottom: 30px;
     }
 `

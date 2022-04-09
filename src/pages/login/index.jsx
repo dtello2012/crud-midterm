@@ -5,7 +5,7 @@ import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 
 import LockIcon from '@mui/icons-material/Lock'
-import { StyledLoginWrap, StyledButtonGroupWrap, StyledIconWrap } from './index.style'
+import { StyledLoginWrap, StyledButtonGroupWrap, StyledIconWrap, StyledLoginLogoWrap } from './index.style'
 import { StyledInputWrap, StyledButtonWrap } from '../../components/utils.style'
 import { useNavigate } from 'react-router-dom'
 import { NotificationContext } from './../../context/NotificationContext'
@@ -89,7 +89,12 @@ const Login = ({ setIsAuth }) => {
                     <StyledIconWrap elevation={2}>
                         <LockIcon />
                     </StyledIconWrap>
+
                     <h1>{isLogin ? 'Login' : 'Register'}</h1>
+                    <StyledLoginLogoWrap>
+                        <p>{isLogin ? 'Log in to to use bug tracker' : 'Register to create your first bug to track'}</p>
+                    </StyledLoginLogoWrap>
+
                     <StyledButtonGroupWrap>
                         <Button
                             variant={isLogin ? 'outlined' : 'contained'}

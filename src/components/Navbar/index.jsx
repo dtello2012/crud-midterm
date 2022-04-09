@@ -7,38 +7,35 @@ import { Link } from 'react-router-dom'
 import { StyledNavbar } from './index.style'
 import { auth } from './../../firebase-config'
 
-const logo = require('./../../images/main_logo.png')
+export const LOGO = require('./../../images/main_logo.png')
 
-const Navbar = ({ onLogout }) => {
+const Navbar = ({ isAuth, onLogout }) => {
     return (
         <StyledNavbar position="sticky">
             <Container style={{ maxWidth: 1740 }}>
                 <Toolbar disableGutters>
                     <Link to={`/dashboard/${auth?.currentUser?.uid}`}>
-                        <img style={{ width: 85 }} src={logo} alt="" />
+                        <img style={{ width: 85 }} src={LOGO} alt="" />
                     </Link>
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', justifyContent: 'flex-end' } }}>
-                        <Button key={'page-1'}>
-                            <Link to={`/dashboard/${auth?.currentUser?.uid}`}>
-                                <Typography textAlign="center">{'Issues'}</Typography>
-                            </Link>
-                        </Button>
-                        {/* <Button key={'page-1.a'}>
-                            <Link to={`/dashboard/team-issues`}>
-                                <Typography textAlign="center">{'Team Issues'}</Typography>
-                            </Link>
-                        </Button> */}
-                        <Button key={'page-2'}>
-                            <Link to="/create-issue">
-                                <Typography textAlign="center">{'Create'}</Typography>
-                            </Link>
-                        </Button>
-                        <Button key={'page-3'}>
-                            <Link to="/#" onClick={onLogout}>
-                                <Typography textAlign="center">{'Logout'}</Typography>
-                            </Link>
-                        </Button>
-                    </Box>
+                    {isAuth && (
+                        <Box sx={{ flexGrow: 1, display: { xs: 'flex', justifyContent: 'flex-end' } }}>
+                            <Button key={'page-1'}>
+                                <Link to={`/dashboard/${auth?.currentUser?.uid}`}>
+                                    <Typography textAlign="center">{'Issues'}</Typography>
+                                </Link>
+                            </Button>
+                            <Button key={'page-2'}>
+                                <Link to="/create-issue">
+                                    <Typography textAlign="center">{'Create'}</Typography>
+                                </Link>
+                            </Button>
+                            <Button key={'page-3'}>
+                                <Link to="/#" onClick={onLogout}>
+                                    <Typography textAlign="center">{'Logout'}</Typography>
+                                </Link>
+                            </Button>
+                        </Box>
+                    )}
                 </Toolbar>
             </Container>
         </StyledNavbar>

@@ -50,7 +50,7 @@ const Root = () => {
     return (
         <ThemeProvider theme={theme}>
             <StyledThemeProvider theme={theme}>
-                {isAuth && <Navbar onLogout={handleLogout} />}
+                <Navbar isAuth={isAuth} onLogout={handleLogout} />
                 <NotificationContext.Provider
                     value={{
                         notificationState,
@@ -69,9 +69,9 @@ const Root = () => {
                             <Route
                                 path="*"
                                 element={
-                                    <main style={{ padding: '1rem' }}>
+                                    <article style={{ padding: '1rem' }}>
                                         <p>There's nothing here!</p>
-                                    </main>
+                                    </article>
                                 }
                             />
                         </Routes>
