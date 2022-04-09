@@ -30,7 +30,7 @@ const Create = ({ isAuth, isEdit }) => {
         if (!isAuth) {
             navigate('/')
         }
-    }, [])
+    }, [isAuth, navigate])
 
     const handleSubmit = async () => {
         if (!title || !description) return

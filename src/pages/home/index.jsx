@@ -50,7 +50,8 @@ const Home = ({ isAuth }) => {
         if (!issuesList || issuesList?.length === 0) {
             getListOfIssues()
         }
-    }, [])
+    }, [isAuth, navigate, issuesList, getListOfIssues])
+
     const openIssues = issuesList?.filter(
         (item) => item.issueState === 'Open' && item?.author.id === auth?.currentUser?.uid
     )

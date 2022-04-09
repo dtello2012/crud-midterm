@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { signOut } from 'firebase/auth'
 import './App.css'
 import Login from './pages/login'
 import Create from './pages/create'
 import Home from './pages/home'
-import { getDocs, collection, deleteDoc, doc, updateDoc } from 'firebase/firestore'
+import { getDocs, collection } from 'firebase/firestore'
 import { db, auth } from './firebase-config'
 
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from 'react-router-dom'
